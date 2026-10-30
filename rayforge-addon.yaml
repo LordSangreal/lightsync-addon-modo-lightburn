@@ -1,0 +1,11 @@
+name: modo_lightburn
+display_name: "Modo LightBurn"
+description: "Atalhos de teclado e organização parecidos com o LightBurn, para quem está migrando para o LightSync."
+api_version: 24
+url: https://github.com/LordSangreal/lightsync-addon-modo-lightburn
+author:
+  name: "Comunidade LightSync"
+provides:
+  frontend: "modo_lightburn.frontend"
+license:
+  name: "MIT"
