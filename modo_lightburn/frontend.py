@@ -1,9 +1,10 @@
 """
 Liga o "Modo LightBurn" na janela principal do LightSync.
 
-Troca atalhos de teclado pelos do padrão LightBurn, usa o tema escuro (se a
-pessoa não escolheu um tema nas configurações) e desfaz tudo quando o
-complemento é desligado.
+Arruma a tela no jeito do LightBurn (menus, ferramentas à esquerda, painel
+Cortes / Camadas à direita, barra de cores embaixo), troca atalhos de teclado
+pelos do padrão LightBurn, usa o tema escuro (se a pessoa não escolheu um tema
+nas configurações) e desfaz tudo quando o complemento é desligado.
 """
 
 import logging
@@ -13,6 +14,7 @@ from gi.repository import Adw, Gtk
 from rayforge.context import get_context
 from rayforge.core.hooks import hookimpl
 
+from . import layout, menus
 from .shortcuts import LIGHTBURN_SHORTCUTS, REMOVED_SHORTCUTS
 
 logger = logging.getLogger(__name__)
@@ -45,6 +47,8 @@ def _apply_dark_theme():
 def main_window_ready(main_window):
     global _controller
     _apply_dark_theme()
+    menus.apply(main_window)
+    layout.apply(main_window)
     controller = getattr(main_window.action_manager, "_shortcut_controller", None)
     if controller is None:
         logger.warning("Modo LightBurn: controle de atalhos não encontrado")
@@ -82,6 +86,8 @@ def on_unload():
     if _forced_dark:
         Adw.StyleManager.get_default().set_color_scheme(Adw.ColorScheme.DEFAULT)
         _forced_dark = False
+    layout.undo()
+    menus.undo()
     if _controller is None:
         return
     for shortcut in _added:
