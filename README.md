@@ -10,6 +10,11 @@ combinações de teclas seguem a lista pública de atalhos do LightBurn
 (https://docs.lightburnsoftware.com/Hotkeys.html). LightBurn é marca da
 LightBurn Software; o LightSync não tem relação com a empresa.
 
+## Tema
+
+Usa o tema escuro, parecido com o do LightBurn, a menos que você tenha escolhido
+um tema claro ou escuro em Configurações. Ao desligar o complemento, volta ao tema do sistema.
+
 ## Atalhos desta versão
 
 | Teclas | Função |

@@ -1,14 +1,16 @@
 """
 Liga o "Modo LightBurn" na janela principal do LightSync.
 
-Troca atalhos de teclado pelos do padrão LightBurn e desfaz tudo quando o
+Troca atalhos de teclado pelos do padrão LightBurn, usa o tema escuro (se a
+pessoa não escolheu um tema nas configurações) e desfaz tudo quando o
 complemento é desligado.
 """
 
 import logging
 
-from gi.repository import Gtk
+from gi.repository import Adw, Gtk
 
+from rayforge.context import get_context
 from rayforge.core.hooks import hookimpl
 
 from .shortcuts import LIGHTBURN_SHORTCUTS, REMOVED_SHORTCUTS
@@ -19,6 +21,7 @@ logger = logging.getLogger(__name__)
 _controller: Gtk.ShortcutController | None = None
 _added: list[Gtk.Shortcut] = []
 _removed: list[Gtk.Shortcut] = []
+_forced_dark = False
 
 
 def _normalize(trigger: str) -> str:
@@ -30,9 +33,18 @@ def _shortcuts(controller: Gtk.ShortcutController) -> list[Gtk.Shortcut]:
     return [controller.get_item(i) for i in range(controller.get_n_items())]
 
 
+def _apply_dark_theme():
+    """Tema escuro como o do LightBurn, sem passar por cima da escolha da pessoa."""
+    global _forced_dark
+    if get_context().config.theme not in ("light", "dark"):
+        Adw.StyleManager.get_default().set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+        _forced_dark = True
+
+
 @hookimpl
 def main_window_ready(main_window):
     global _controller
+    _apply_dark_theme()
     controller = getattr(main_window.action_manager, "_shortcut_controller", None)
     if controller is None:
         logger.warning("Modo LightBurn: controle de atalhos não encontrado")
@@ -66,6 +78,10 @@ def main_window_ready(main_window):
 
 @hookimpl
 def on_unload():
+    global _forced_dark
+    if _forced_dark:
+        Adw.StyleManager.get_default().set_color_scheme(Adw.ColorScheme.DEFAULT)
+        _forced_dark = False
     if _controller is None:
         return
     for shortcut in _added:
